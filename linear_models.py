@@ -94,3 +94,26 @@ class LinearRegression():
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
         return self.h(x) >= 0.5
 
+
+class GDA():
+    def __init__(self, num_features):
+        self.num_features = num_features
+        self.theta = np.zeros(num_features+1)
+
+    def fit(self, x, y):
+        self.phi = np.mean(y)
+        self.mu = np.array([np.mean(x[y == 0], axis=0), np.mean(x[y == 1], axis=0)])
+        x_shifted = np.concatenate((x[y==0] - self.mu[0][None,:], x[y==1] - self.mu[1][None,:]), axis=0)
+        self.sigma = np.cov(x_shifted.T)
+        self.sigma_inv = np.linalg.inv(self.sigma)
+        self.theta[1:] = self.sigma_inv @ (self.mu[1] - self.mu[0]).T
+        self.theta[0] =  np.log(self.phi / (1 - self.phi)) + (self.mu[0] @ self.sigma_inv @ self.mu[0].T - self.mu[1] @ self.sigma_inv @ self.mu[1].T)/2
+    
+    def h(self, x):
+        z = x @ self.theta
+        return 1 / (1 + np.exp(-z))
+    
+    def predict(self, x):
+        m, n = x.shape
+        x = np.concatenate((np.ones((m, 1)), x), axis=1)
+        return self.h(x) >= 0.5
