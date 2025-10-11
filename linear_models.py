@@ -80,7 +80,7 @@ class LinearRegression():
             old_theta = self.theta
             self.theta = self.next_theta(x, y)
 
-    def predict(self, x):
+    def predict(self, x, threshold=0.5):
         """
         Predict the class of the input data, using the current theta. 
         h(x) >= 0.5 is the positive class, otherwise the negative class.
@@ -92,7 +92,7 @@ class LinearRegression():
         """
         m, n = x.shape
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
-        return self.h(x) >= 0.5
+        return self.h(x) >= threshold
 
 
 class GDA():
