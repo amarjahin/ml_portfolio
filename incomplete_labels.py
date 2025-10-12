@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from linear_models import LinearRegression 
+from linear_models import LogisticRegression 
 
 # the data has 4 columns. The first is the true label, the second and third are the features, 
 # the last is the incomplete label. We need to predict the true label using 
@@ -23,7 +23,7 @@ x_test = data_test.iloc[:, 1:3].values
 t_test = data_test.iloc[:, 0].values
 
 
-lr = LinearRegression(num_features=2)
+lr = LogisticRegression(num_features=2)
 # train the model using incomplete labels 
 lr.fit(x_train, y_train)
 y_pred = lr.predict(x_valid)

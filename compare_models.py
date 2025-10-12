@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from linear_models import LinearRegression, GDA
+from linear_models import LogisticRegression, GDA
 
 # Load the data
 data_train = pd.read_csv('data/ds1_train.csv')
@@ -13,7 +13,7 @@ x_valid = data_valid.iloc[:, :-1].values
 y_valid = data_valid.iloc[:, -1].values
 
 # Train the models
-lr = LinearRegression(num_features=2)
+lr = LogisticRegression(num_features=2)
 lr.fit(x_train, y_train)
 gda = GDA(num_features=2)
 gda.fit(x_train, y_train)
