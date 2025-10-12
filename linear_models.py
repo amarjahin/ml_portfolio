@@ -1,6 +1,6 @@
 import numpy as np
 
-class LinearRegression():
+class LogisticRegression():
     """
     Logistical regression model. 
     Parameters:
@@ -117,3 +117,52 @@ class GDA():
         m, n = x.shape
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
         return self.h(x) >= 0.5
+
+
+class PoissonRegression():
+    """
+    Poisson regression model.
+    Parameters:
+        num_features (int): number of features in the data
+        alpha (float): learning rate for gradient ascent
+        eps (float): convergence threshold for gradient ascent (max likelihood)
+        max_iter (int): maximum number of iterations
+    """
+    def __init__(self, num_features,alpha,eps=1e-9, max_iter=5000):
+        self.num_features = num_features
+        self.eps = eps
+        self.theta = np.zeros(num_features+1)
+        self.alpha = alpha
+        self.max_iter = max_iter
+    
+    def h(self, x):
+        z = x @ self.theta
+        # z = np.clip(z, -40, 40)
+        return np.exp(z)
+
+    def gradient(self, x, y):
+        return np.mean(x * (y - self.h(x))[:,None], axis=0)
+    
+    # def hessian(self, x):
+    #     return -np.mean(x[:,:,None] * x[:,None,:] * self.h(x)[:,None,None], axis=0)
+    
+    def next_theta(self, x, y):
+        return self.theta + self.alpha * self.gradient(x, y)  # plus because we are maximizing the likelihood
+    
+    def fit(self, x, y):
+        m, n = x.shape
+        x = np.concatenate((np.ones((m, 1)), x), axis=1)
+        old_theta = self.theta
+        print(self.theta)
+        self.theta = self.next_theta(x, y)
+        print(self.theta)
+        i = 0
+        while np.linalg.norm(self.theta - old_theta, 1) >= self.eps and i < self.max_iter:
+            old_theta = self.theta
+            self.theta = self.next_theta(x, y)
+            print(self.theta)
+            i += 1
+    def predict(self, x):
+        m, n = x.shape
+        x = np.concatenate((np.ones((m, 1)), x), axis=1)
+        return self.h(x) 
