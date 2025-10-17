@@ -166,3 +166,39 @@ class PoissonRegression():
         m, n = x.shape
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
         return self.h(x) 
+
+
+class LinearRegression():
+    """
+    Linear regression model where training is done using the normal equation. 
+    The fitting can be done with or without weights.
+    Parameters:
+        num_features (int): number of features in the data
+    """
+    def __init__(self, num_features):
+        self.num_features = num_features
+        self.theta = np.zeros(num_features+1)
+
+    def fit(self, x, y, weights=None, x_to_predict=None, sigma=0.5):
+        """
+        Fit the model using the normal equation.
+        Parameters:
+            x (numpy.ndarray): input data
+            y (numpy.ndarray): target data
+            weights (str): type of weights to use, None for ordinary least squares, "Gaussian" for Gaussian weights
+            x_to_predict (numpy.ndarray): the x value to make the prediction for
+            sigma (float): standard deviation for Gaussian weights
+        Returns:
+            numpy.ndarray: predicted y value
+        """
+        m, n = x.shape
+        x = np.concatenate((np.ones((m, 1)), x), axis=1)
+        if weights is None: # ordinary least squares
+            self.theta = np.linalg.inv(x.T @ x) @ x.T @ y  
+        elif weights == "Gaussian":
+            weights = np.diag(np.exp(-(x_to_predict - x[:,1])**2 / (2 * sigma**2)))
+            self.theta = np.linalg.inv(x.T @ weights @ x) @ x.T @ weights @ y
+    def predict(self, x):
+        # m, n = x.shape
+        # x = np.concatenate((np.ones(1), x))
+        return np.array([1, x]) @ self.theta
