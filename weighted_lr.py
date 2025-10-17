@@ -22,7 +22,7 @@ for i, x in enumerate(x_valid):
 
 plt.scatter(x_valid[:,0], y_valid, label='Validation set')
 for j in range(len(tau_list)):
-    plt.scatter(x_valid[:,0], y_pred[:,j], label=f'tau={tau_list[j]}')
+    plt.scatter(x_valid[:,0], y_pred[:,j], label=f'sigma={tau_list[j]}')
 plt.legend()
 plt.xlabel('x')
 plt.ylabel('y')
