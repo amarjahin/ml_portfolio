@@ -8,9 +8,8 @@ class LogisticRegression():
         eps (float): convergence threshold for Newton's method
     """
 
-    def __init__(self, num_features, eps=1e-9):
+    def __init__(self, num_features):
         self.num_features = num_features
-        self.eps = eps
         self.theta = np.zeros(num_features+1)
 
     def h(self, x):
@@ -53,7 +52,7 @@ class LogisticRegression():
             numpy.ndarray: Hessian
         """
         return np.mean(x[:,:,None] * x[:,None,:] * (self.h(x) * (1 - self.h(x)))[:,None,None], axis=0)
-    def next_theta(self, x, y):
+    def next_theta_newton(self, x, y):
         """
         Update theta using Newton's method.
         Parameters:
@@ -64,7 +63,11 @@ class LogisticRegression():
         """
         return self.theta - np.linalg.inv(self.hessian(x)) @ self.gradient(x, y)
 
-    def fit(self, x, y):
+
+    def next_theta_gradient(self, x, y, learning_rate):
+        return self.theta - learning_rate * self.gradient(x, y)  # plus because we are maximizing the likelihood
+
+    def fit(self, x, y,  eps=1e-9, max_iter=5000, method="Newton", learning_rate=None):
         """
         Keep updating theta until the change is less than the convergence threshold.
         Parameters:
@@ -73,12 +76,20 @@ class LogisticRegression():
         """
         m, n = x.shape
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
-
+    
         old_theta = self.theta
-        self.theta = self.next_theta(x, y)
-        while np.linalg.norm(self.theta - old_theta, 1) >= self.eps:
+        if method == "Newton":
+            self.theta = self.next_theta_newton(x, y)
+        elif method == "Gradient Descent":
+            self.theta = self.next_theta_gradient(x, y, learning_rate)
+        i = 0
+        while np.linalg.norm(self.theta - old_theta, 1) >= eps and i < max_iter:
             old_theta = self.theta
-            self.theta = self.next_theta(x, y)
+            if method == "Newton":
+                self.theta = self.next_theta_newton(x, y)
+            elif method == "Gradient Descent":
+                self.theta = self.next_theta_gradient(x, y, learning_rate)
+            i += 1
 
     def predict(self, x, threshold=0.5):
         """
