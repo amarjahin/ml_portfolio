@@ -19,10 +19,10 @@ gda = GDA(num_features=2)
 gda.fit(x_train, y_train)
 
 # Evaluate the models
-print("The accuracy on training set is: ", np.mean(lr.predict(x_train) == y_train))
-print("The accuracy on validating set is: ", np.mean(lr.predict(x_valid) == y_valid))
-print("The accuracy on training set is: ", np.mean(gda.predict(x_train) == y_train))
-print("The accuracy on validating set is: ", np.mean(gda.predict(x_valid) == y_valid))
+print("The accuracy on training set is using logistic regression: ", np.mean(lr.predict(x_train) == y_train))
+print("The accuracy on validating set is using logistic regression: ", np.mean(lr.predict(x_valid) == y_valid))
+print("The accuracy on training set is using GDA: ", np.mean(gda.predict(x_train) == y_train))
+print("The accuracy on validating set is using GDA: ", np.mean(gda.predict(x_valid) == y_valid))
 
 # Plot the decision boundaries
 # plt.scatter(x_train[:, 0], x_train[:, 1], c=y_train)
