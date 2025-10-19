@@ -73,9 +73,18 @@ class LogisticRegression():
         Parameters:
             x (numpy.ndarray): input data
             y (numpy.ndarray): target data
+            eps (float): convergence threshold
+            max_iter (int): maximum number of iterations
+            method (str): method to use, "Newton" or "Gradient Descent"
+            learning_rate (float): learning rate for gradient descent
         """
         m, n = x.shape
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
+
+        self.target_is_0_1 = True
+        if np.min(y) == -1: # make sure the target data is 0 or 1
+            y = (y + np.ones_like(y))/2
+            self.target_is_0_1 = False
     
         old_theta = self.theta
         if method == "Newton":
@@ -103,7 +112,10 @@ class LogisticRegression():
         """
         m, n = x.shape
         x = np.concatenate((np.ones((m, 1)), x), axis=1)
-        return self.h(x) >= threshold
+        if self.target_is_0_1:
+            return self.h(x) >= 0.5
+        else:
+            return (self.h(x) >= 0.5) * 2 - 1   
 
 
 class GDA():
