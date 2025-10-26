@@ -225,3 +225,92 @@ class LinearRegression():
         # m, n = x.shape
         # x = np.concatenate((np.ones(1), x))
         return np.array([1, x]) @ self.theta
+
+class Perceptron():
+    """
+    Implementation of the Perceptron algorithm.
+    Parameters:
+        num_features (int): number of features in the data
+    """
+    def __init__(self, num_features):
+        self.num_features = num_features
+        self.theta = np.zeros(num_features+1)
+    
+    def h(self, x):
+        z = x @ self.theta
+        return (np.sign(z) + 1)/2
+
+    def gradient(self, x, y):
+        return np.mean(x * (y - self.h(x))[:,None], axis=0)
+
+    def next_theta(self, x, y, learning_rate):
+        return self.theta + learning_rate * self.gradient(x, y)  # plus because we are maximizing the likelihood
+    
+    def fit(self, x, y,eps=1e-9, max_iter=5000, learning_rate=1):
+        """ 
+        Fit the model using the Perceptron algorithm.
+        Parameters:
+            x (numpy.ndarray): input data
+            y (numpy.ndarray): target data
+            eps (float): convergence threshold
+            max_iter (int): maximum number of iterations
+            learning_rate (float): learning rate
+        """
+        m, n = x.shape
+        x = np.concatenate((np.ones((m, 1)), x), axis=1)
+        old_theta = self.theta
+        self.theta = self.next_theta(x, y, learning_rate)
+        i = 0
+        while np.linalg.norm(self.theta - old_theta, 1) >= eps and i < max_iter:
+            old_theta = self.theta
+            self.theta = self.next_theta(x, y, learning_rate)
+            i += 1
+    def predict(self, x):
+        m, n = x.shape
+        x = np.concatenate((np.ones((m, 1)), x), axis=1)
+        return self.h(x) 
+
+
+class PerceptronKernel():
+    """
+    Implementation of the Perceptron algorithm with a Gaussian kernel.
+    Parameters:
+        num_features (int): number of features in the data
+        sigma (float): standard deviation for the Gaussian kernel
+    """
+    def __init__(self, num_features, sigma):
+        self.num_features = num_features
+        self.sigma = sigma
+
+    def h(self, z):
+        z = z + 1e-16
+        return (np.sign(z) + 1)/2.0
+
+    def kernel(self, x1, x2):
+        if len(x1.shape) == 1:
+            x1 = np.array([x1])
+        if len(x2.shape) == 1:
+            x2 = np.array([x2])
+        x1 = x1[:,None,:]
+        x2 = x2[None,:,:]
+        return np.exp(-np.linalg.norm(x1 - x2, axis=-1)**2 / (2 * self.sigma**2))
+    
+    def fit(self, x, y, learning_rate=1):
+        """
+        Fit the data using a stochastic gradient descent algorithm doing one pass through the data.
+        Parameters:
+            x (numpy.ndarray): input data
+            y (numpy.ndarray): target data
+            learning_rate (float): learning rate
+        """
+        self.x_train = x
+        self.y_train = y
+        m, n = x.shape
+        self.beta = np.zeros(m)
+        self.beta[0] = learning_rate*y[0]
+        for i in range(1, m):
+            z = np.sum(self.beta[:i] * self.kernel(x[i], x[:i])[0,:])
+            self.beta[i] = learning_rate*(y[i] - self.h(z))
+
+    def predict(self, x):
+        return self.h(np.sum(self.beta[:,None] * self.kernel(self.x_train, x), axis=0))
