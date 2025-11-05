@@ -79,7 +79,7 @@ y_pred = []
 for text in data_valid["text"]:
     y_pred.append(NB.predict(text)) 
 
-print(np.mean(y_pred == data_valid["label"]))
+print("The accuracy on validating set is using naive bayes: ", np.mean(y_pred == data_valid["label"]))
 
 
 
